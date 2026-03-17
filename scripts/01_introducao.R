@@ -206,4 +206,147 @@ sort(meses)
 
 # Importa arquivo de dados ------------------------------------------------
 
+# define o caminho relativo para o arquivo csv
+# usando a função here() do pacote here
+caminho_csv <- here("data/raw/dados_vendas.csv")
+
+# importa o arquivo csv com a função readr do pacote readr
+# e armazena no objeto dados_vendas
+dados_vendas <- read_csv(caminho_csv)
+
+
+
+# Compreendendo os dados --------------------------------------------------
+
+## Exibe visão geral dos dados
+glimpse(dados_vendas)
+
+## Visualiza as primeiras Linhas da tabela
+head(dados_vendas)
+
+## Visão detalhada dos dados
+skim(dados_vendas)
+
+
+
+# Preparação dos dados para análise ---------------------------------------
+
+## Limpa os nomes das colunas
+dados_vendas <- dados_vendas |>
+  clean_names()
+
+## visao geral dos dados
+glimpse (dados_vendas)
+
+## converte as colunas de cidade, representante e produto para fatores
+dados_vendas_limpos <- dados_vendas |>
+  mutate(
+    cidade = as.factor(cidade),
+    representante = as.factor(representante),
+    produto = as.factor(produto)
+  )
+
+## verifica a estrutura dos dados
+glimpse(dados_vendas_limpos)
+
+## Resumos estatístico do objeto
+summary(dados_vendas_limpos)
+
+
+
+# Salva os dados limpos --------------------------------------------------
+
+# define o caminho relativo da pasta onde o arquivo limpo será salvo
+caminho_csv_limpo <- here("data/clean/dados_vendas_limpos.rds")
+
+# salva o objeto dados_vendas_limpos no formato rds
+readr::write_rds(dados_vendas_limpos, caminho_csv_limpo)
+
+
+## Que perguntas de negócio você faria para esse conjunto de dados?
+
+
+# Manipulação/análise com o pacote dplyr ----------------------------------
+
+# Exemplo 1
+# Pergunta de negócio: quero apenas as vendas realizadas em Formiga
+
+dados_vendas_limpos |>
+  filter(cidade == "Formiga")
+
+
+# Exemplo 2
+# Pergunta de negócio: quero apenas as vendas realizadas em Formiga que
+# geraram receita maior que 1000
+
+dados_vendas_limpos |>
+  filter(cidade == "Formiga" & receita > 1000)
+
+
+# Exemplo 3
+# Pergunta de negócio: quero apenas as colunas cidade e receita
+
+dados_vendas_limpos |>
+  select(cidade,receita)
+
+
+# Exemplo 4
+# Pergunta de negócio: quero saber a receita total por cidade
+
+receita_por_cidade <- dados_vendas_limpos |>
+  group_by(cidade) |>
+  summarise(receita_total = sum(receita))
+
+# exibe o objeto criado
+receita_por_cidade
+
+
+# Exemplo 5
+# Pergunta de negócio: quero saber a receita total por produto
+
+dados_vendas_limpos |>
+  group_by(produto) |>
+  summarise(receita_total = sum(receita))
+
+
+# Exemplo 6
+# Pergunta de negócio: quero saber a receita total por cidade em
+# ordem decrescente e salvar o resultado em outro objeto
+
+receita_por_cidade_produto <- dados_vendas_limpos |>
+  group_by(cidade) |>
+  summarise(receita_total = sum(receita)) |>
+  arrange(desc(receita_total))
+
+# exibe o objeto criado
+receita_por_cidade_produto
+
+
+# Exemplo 7
+# Pergunta de negócio: quero saber a receita total por cidade e representante,
+# em ordem decrescente de receita
+
+dados_vendas_limpos |>
+  group_by(cidade, representante) |>
+  summarise(receita_total = sum(receita)) |>
+  arrange(desc(receita_total))
+
+
+# Exemplo 8
+# Pergunta de negócio: Quero saber a receita total por cidade e produto
+# em ordem decrescente
+
+dados_vendas_limpos |>
+  group_by(cidade, produto) |>
+  summarise(receita_total = sum(receita)) |>
+  arrange(desc(receita_total))
+
+# exibe o objeto criado
+receita_por_cidade_produto
+
+
+
+
+# Resolução dos exercícios ------------------------------------------------
+
 
