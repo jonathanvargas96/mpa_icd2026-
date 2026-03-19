@@ -349,4 +349,33 @@ receita_por_cidade_produto
 
 # Resolução dos exercícios ------------------------------------------------
 
+custos_semanais <- c(5400, 6100, 5900, NA, 6300, 6000)
+
+# Exercício 1
+
+
+# Exercício 2
+
+
+# Exercício 3
+
+
+# Exercício 4
+
+
+# Exercício 5
+
+
+# Exercício 6
+
+
+# Exercício 7
+
+
+# Exercício 8
+
+
+# Exercício 9
+
+
 
