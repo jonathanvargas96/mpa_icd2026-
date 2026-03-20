@@ -352,30 +352,44 @@ receita_por_cidade_produto
 custos_semanais <- c(5400, 6100, 5900, NA, 6300, 6000)
 
 # Exercício 1
+sum(custos_semanais, na.rm = TRUE)
 
-
-# Exercício 2
-
+# Exercício 2.
+mean(custos_semanais, na.rm = TRUE)
 
 # Exercício 3
-
+min(custos_semanais, na.rm = TRUE)
+max(custos_semanais, na.rm = TRUE)
 
 # Exercício 4
-
+dados_vendas_limpos |>
+  filter(produto == "Produto A")
 
 # Exercício 5
-
+dados_vendas_limpos |>
+  filter(cidade == "Piumhi" & unidades > 10)
 
 # Exercício 6
-
+dados_vendas_limpos |>
+  group_by(produto) |> 
+  summarise(sum(unidades))
 
 # Exercício 7
-
+dados_vendas_limpos |>
+  group_by(cidade) |> 
+  summarise(mean(receita))
 
 # Exercício 8
-
+dados_vendas_limpos |>
+  group_by(representante) |> 
+  summarise(sum(receita))
 
 # Exercício 9
+dados_vendas_limpos |>
+  group_by(produto) |> 
+  summarise(min(preco_unitario))
 
-
-
+# Exercício 10
+  
+resultado <- dados_vendas_limpos |>
+  select(cidade, produto)
