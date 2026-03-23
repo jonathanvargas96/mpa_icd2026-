@@ -117,3 +117,35 @@ desempenho_filiais <- gapminder |>
             pib_maximo = max(gdpPercap))
 
 # Exercício 18
+
+evolucao_expVida_americas <- gapminder |> 
+  filter(continent == "Americas") |> 
+  group_by(year) |> 
+  summarise(expectativa_media = mean(lifeExp))
+
+# Exercício 19
+
+ranking_expVida_2007 <- gapminder |> 
+  filter(year == 2007) |> 
+  arrange(desc(lifeExp))
+
+# Exercício 20
+
+menores_pib_2007 <- gapminder |> 
+  filter(year == 2007) |> 
+  arrange(gdpPercap) |> 
+  head(5)
+
+# Exercício 21
+
+ranking_americas_2007 <- gapminder |> 
+  filter(year == 2007, continent == "Americas") |> 
+  arrange(desc(pop))
+
+# Exercício 22
+
+ranking_continentes_2007 <- gapminder |> 
+  filter(year == 2007) |> 
+  group_by(continent) |> 
+  summarise(expectativa_media = mean(lifeExp)) |> 
+  arrange(desc(expectativa_media))
