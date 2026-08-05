@@ -1,0 +1,99 @@
+---
+title: "Relatório Técnico: Predição do Custo de Combustível"
+subtitle: "Análise Comparativa entre Regressão Linear e Random Forest"
+author: "Jonathan Vargas Silva"
+date: "2026-06-30"
+date-format: "DD [de] MMMM [de] YYYY"
+lang: pt-BR
+fontsize: 12pt
+linestretch: 1.5
+format:
+  pdf:
+    toc: true
+    toc-title: "Sumário"
+    number-sections: true
+    colorlinks: true
+    fig-pos: "H"
+    geometry: margin=2.5cm
+  html:
+    toc: true
+    theme: cosmo
+---
+
+# Introdução
+A precisão na estimativa de custos unitários é um fator crítico para a saúde financeira e a competitividade operacional de qualquer organização. Em um cenário de mercado dinâmico, falhas na precificação podem comprometer tanto a margem de lucro quanto o posicionamento estratégico da empresa.
+
+Atualmente, o processo de precificação enfrenta desafios relacionados à variabilidade dos insumos e à complexidade das variáveis operacionais, que frequentemente não são capturadas adequadamente por modelos de cálculo tradicionais. A incerteza na definição de custos unitários impacta diretamente a tomada de decisão sobre novos investimentos, planejamento orçamentário e a viabilidade de projetos.
+
+Este trabalho tem como objetivo desenvolver e avaliar modelos de regressão capazes de prever o custo unitário com maior assertividade. Por meio da análise de dados operacionais e da aplicação de algoritmos de aprendizado de máquina, busca-se identificar quais variáveis exercem maior influência sobre os custos e propor uma solução que reduza a incerteza, permitindo um planejamento financeiro mais robusto e baseado em dados.
+
+# Descrição do Dataset
+Para a construção e validação dos modelos de regressão, foi utilizada uma base de dados estruturada a partir do controle de abastecimento da frota de equipamentos automotivos da Mineração Cazanga.
+
+## Estrutura e Composição
+O dataset é composto por 1.032 registros (linhas) e 10 variáveis (colunas), cobrindo as operações de consumo de combustível e métricas de desempenho dos ativos. As principais características da base são:
+
+* Fonte: controle de abastecimento da Mineração Cazanga.
+
+* Dimensões: 1.032 observações e 10 variáveis.
+
+* Variável Alvo (Target): Custo_Unitario, que representa o valor por unidade de consumo (combustível).
+
+Variáveis explicativas (features): incluem atributos técnicos e operacionais, tais como identificação do equipamento, categoria do ativo, volume total de litros abastecidos, valor financeiro da operação e indicadores de performance como a média (consumo/rendimento), entre outros dados complementares.
+
+Esta base permite correlacionar o comportamento de consumo com as características específicas de cada equipamento, fornecendo o suporte necessário para o treinamento dos algoritmos de aprendizado de máquina.
+
+# Metodologia
+O fluxo de trabalho foi desenvolvido no KNIME Analytics Platform, garantindo que a normalização dos dados respeitasse estritamente a divisão entre treino e teste para evitar o vazamento de informações (data leakage). O diagrama do processo, contendo as etapas de pré-processamento, partição e modelagem, é apresentado na Figura 1.
+
+![Fluxograma completo do pipeline de dados desenvolvido no KNIME](C:/Knime/IC Apl Decisões Financeiras 2026-1/Aula 6 - Trabalho/workflow_regressao.png)
+
+# Resultados
+
+```{r}
+#| label: tbl-metricas
+#| tbl-cap: "Comparativo das métricas de desempenho dos modelos preditivos."
+#| echo: false
+#| message: false
+#| warning: false
+
+library(readxl)
+library(dplyr)
+library(kableExtra)
+library(here)
+
+# Carrega os arquivos
+caminho_linear <- here("trabalhos", "3-trabalho", "Scorer linear prediction.xlsx")
+caminho_rf <- here("trabalhos", "3-trabalho", "Scorer Random Forest prediction.xlsx")
+
+df_linear <- read_excel(caminho_linear) %>% rename(Metrica = RowID, Linear = `Prediction (Custo_Unitario)`)
+df_rf <- read_excel(caminho_rf) %>% rename(Metrica = RowID, RandomForest = `Prediction (Custo_Unitario)`)
+
+# Une os resultados
+tabela_final <- left_join(df_linear, df_rf, by = "Metrica")
+
+# Gera a tabela formatada
+tabela_final %>%
+  kable(digits = 4, format = "markdown") %>%
+  kable_styling(full_width = FALSE)
+```
+
+## Análise Comparativa
+Ao avaliar a performance dos modelos de Regressão Linear e Random Forest para a predição do Custo Unitário, observamos distinções fundamentais em seus comportamentos.
+
+Poder Explicativo ($R^2$): O modelo Random Forest apresentou uma capacidade superior de capturar a variância dos dados ($R^2 \approx 0.74$) em comparação à Regressão Linear ($R^2 \approx 0.56$). Isso sugere que a relação entre as variáveis explicativas e o Custo Unitário não é estritamente linear, permitindo que o modelo baseado em árvores de decisão capture melhor as não-linearidades e interações entre as variáveis de entrada.
+
+Precisão e Erro (MAPE): O MAPE do Random Forest é significativamente menor (aprox. 25% contra 66% do modelo linear). Do ponto de vista de negócio, isso significa que, em média, as predições do Random Forest estão muito mais próximas do valor real, reduzindo o risco de decisões baseadas em projeções distantes da realidade.
+
+# Conclusão
+O modelo Random Forest apresentou um desempenho superior à Regressão Linear, demonstrando maior poder explicativo ($R^2$ mais elevado) e uma redução significativa no erro relativo (MAPE), o que confere maior confiabilidade às estimativas. Portanto, recomenda-se a utilização do Random Forest para a predição de Custo Unitário em atividades futuras.
+
+Para a Mineração Cazanga, os resultados deste trabalho proporcionam benefícios estratégicos fundamentais:
+
+* Otimização do planejamento financeiro: a maior precisão nas previsões de custos permite que a gestão tenha maior segurança na alocação de recursos e na definição de orçamentos, minimizando o impacto de variações inesperadas.
+
+* Redução de incertezas operacionais: com um MAPE mais reduzido, a Mineração Cazanga passa a contar com um horizonte de custos mais previsível, facilitando a tomada de decisão em cenários de alta variabilidade.
+
+* Suporte à eficiência produtiva: ao compreender melhor os fatores que influenciam o Custo Unitário, a empresa ganha capacidade de identificar gargalos e priorizar ações que contribuam diretamente para a sustentabilidade econômica e a produtividade da operação mineradora.
+
+Em suma, a implementação deste modelo evolui a capacidade analítica da organização, transformando dados históricos em inteligência aplicada ao controle de custos.

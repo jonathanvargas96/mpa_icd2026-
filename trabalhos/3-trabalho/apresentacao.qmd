@@ -1,0 +1,50 @@
+library(officer)
+library(magrittr)
+
+# 1. Criar apresentação vazia
+doc <- read_pptx()
+
+# 2. Definição do layout dos slides
+# Adicionando slides baseados no roteiro
+doc %<>% 
+  add_slide(layout = "Title Slide", master = "Office Theme") %>%
+  ph_with(value = "Predição do Custo de Combustível", location = ph_location_type(type = "ctrTitle")) %>%
+  ph_with(value = "Análise Comparativa: Regressão Linear vs. Random Forest", location = ph_location_type(type = "subTitle"))
+
+# 3. Slide: Descrição e Justificativa do Dataset
+doc %<>% add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = "Descrição e Justificativa do Dataset", location = ph_location_type(type = "title")) %>%
+  ph_with(value = c("Contexto: A precisão no custo unitário é crítica para a saúde financeira.",
+                    "Dataset: Controle de abastecimento da Mineração Cazanga (1.032 registros, 10 variáveis).",
+                    "Justificativa: Superar limitações de modelos tradicionais e reduzir incertezas operacionais."), 
+          location = ph_location_type(type = "body"))
+
+# 4. Slide: Variável-Alvo
+doc %<>% add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = "Variável-Alvo Definida", location = ph_location_type(type = "title")) %>%
+  ph_with(value = "O alvo definido para o modelo é o 'Custo_Unitario', que representa o valor financeiro por unidade de consumo (litros), sendo o principal indicador para otimização do planejamento financeiro.", 
+          location = ph_location_type(type = "body"))
+
+# 5. Slide: Pipeline Utilizado
+doc %<>% add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = "Pipeline Utilizado (KNIME)", location = ph_location_type(type = "title")) %>%
+  ph_with(external_img("C:/Knime/IC Apl Decisões Financeiras 2026-1/Aula 6 - Trabalho/workflow_regressao.png"), 
+          location = ph_location_fullsize())
+
+# 6. Slide: Visualizações (Gráficos)
+doc %<>% add_slide(layout = "Two Content", master = "Office Theme") %>%
+  ph_with(value = "Comparativo de Dispersão", location = ph_location_type(type = "title")) %>%
+  ph_with(external_img("C:/Knime/IC Apl Decisões Financeiras 2026-1/Aula 6 - Trabalho/Scatter Plot Linear.png"), 
+          location = ph_location_left()) %>%
+  ph_with(external_img("C:/Knime/IC Apl Decisões Financeiras 2026-1/Aula 6 - Trabalho/Scatter Plot Random Forest.png"), 
+          location = ph_location_right())
+
+# 7. Slide: Conclusões e Aplicações
+doc %<>% add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = "Conclusões e Aplicações Práticas", location = ph_location_type(type = "title")) %>%
+  ph_with(value = c("O modelo Random Forest obteve R² de 0.736 e MAPE de 25%.",
+                    "Benefícios: Otimização do planejamento, redução de incertezas e maior eficiência produtiva."), 
+          location = ph_location_type(type = "body"))
+
+# 8. Salvar arquivo
+print(doc, target = "Apresentacao_Custo_Combustivel.pptx")

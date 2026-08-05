@@ -1,0 +1,93 @@
+---
+title: "Relatório Técnico: Classificação Geoquímica de Calcário - Mineração Cazanga"
+subtitle: "Exploração de Dados e Machine Learning"
+author: "Jonathan Vargas Silva"
+date: "2026-06-23"
+date-format: "DD [de] MMMM [de] YYYY"
+lang: pt-BR
+fontsize: 12pt
+linestretch: 1.5
+geometry:
+  - top=25mm
+  - left=30mm
+  - right=20mm
+  - bottom=20mm
+format:
+  pdf:
+    toc: true
+    toc-title: "Sumário"
+    number-sections: true
+    colorlinks: true
+    fig-pos: "H"
+header-includes: |
+  \usepackage{sectsty}
+  \allsectionsfont{\normalsize\bfseries}
+  \usepackage[font=normalsize,labelfont=bf]{caption}
+---
+
+# Introdução
+Este relatório apresenta a classificação geoquímica automatizada de calcário na Mineração Cazanga (Arcos-MG). Ao substituir o mapeamento manual por um modelo de Machine Learning não supervisionado, o projeto otimiza a precisão do planejamento de lavra e possibilita a redução de custos operacionais.
+
+# Descrição do Dataset e Fonte
+Os dados provêm de campanhas de sondagem mineral realizadas pela **Geosol (Belo Horizonte - MG)** e entregues em **outubro de 2025**.
+
+As variáveis selecionadas para a modelagem geoquímica foram:
+
+* **CaO (%)**: Óxido de Cálcio (destinação industrial).
+* **MgO (%)**: Óxido de Magnésio (destinação agrícola).
+* **SiO2 (%)**: Dióxido de Silício (destinação para agregados).
+
+
+# Pré-processamento de Dados
+Para estruturar um pipeline de dados robusto, livre de ruídos experimentais e matematicamente estável, o fluxo de trabalho foi desenvolvido na plataforma **KNIME Analytics Platform**. Abaixo está detalhado o processo completo:
+
+![Fluxograma completo do pipeline de dados desenvolvido no KNIME](C:/Knime/IC Apl Decisões Financeiras 2026-1/Aula 5 - Trabalho/fluxograma_knime.png){width=80%}
+
+## Sanitização de Strings (`Excel Reader` + `String Manipulation`)
+Os dados brutos do laboratório foram importados pelo nó **Excel Reader** a partir da linha correta de teores. Constatou-se a presença de ruídos de detecção de limite analítico (caracteres textuais como `<0,01`). 
+Utilizou-se o nó **String Manipulation (Multi Column)** com funções condicionais aninhadas de substituição para limpar os caracteres de desigualdade e normalizar as células para texto numérico puro. Em seguida, o nó **String to Number** converteu as colunas para o formato numérico decimal real (*Double*).
+
+## Tratamento de Dados Ausentes (`Missing Value`)
+Dados ausentes da base de dados foram tratados pelo nó Missing Value, via Interpolação Linear. O método estima os teores faltantes usando as amostras imediatamente adjacentes do mesmo furo, preservando a continuidade geológica natural sem descartar dados.
+
+## Filtragem e Normalização (`Column Filter` + `Normalizer`)
+O nó **Column Filter** foi empregado para isolar estritamente a matriz geoquímica de interesse (`CaO`, `MgO` e `SiO2`), eliminando redundâncias matemáticas. A aplicação do nó Normalizer pelo método Min-Max (escala 0 a 1) é crucial devido à discrepância de teores: o Cálcio é massivo (30% a 55%), enquanto o Magnésio e a Sílica são baixos (0% a 15%). Sem a normalização, a amplitude do Cálcio dominaria os cálculos de distância geométrica, distorcendo o agrupamento.
+
+# Metodologia e Parâmetros do Modelo
+Foi aplicado o algoritmo **K-Means**, um método clássico de aprendizado de máquina não supervisionado focado em agrupamento geométrico.
+
+* **Número de Clusters ($k$)**: 3 (definido estrategicamente com base nas três frentes de escoamento comercial e industrial da empresa: Industrial, Agrícola e Agregados).
+
+* **Métrica de Distância**: **Distância Euclidiana** (calcula a menor distância geométrica em linha reta entre os pontos no espaço tridimensional normalizado dos teores).
+
+# Resultados e Discussão
+O modelo separou nitidamente os três domínios. O 'Efeito de Atração' do grupo dolomítico (alta densidade) sobre amostras silicosas periféricas foi corrigido via Auditoria Híbrida através do nó Rule Engine, sob o critério de limitação geológica, eliminando erros de classificação.
+
+## Distribuição Espacial (Scatter Plot)
+Abaixo, observa-se o mapeamento das amostras classificadas, destacando a pureza dos grupos em relação aos óxidos de Cálcio e Magnésio.
+
+![Mapeamento Geoquímico dos Clusters](C:/Knime/IC Apl Decisões Financeiras 2026-1/Aula 5 - Trabalho/grafico_scatter.png){width=80%}
+
+## Proporção das Reservas
+A jazida apresenta uma predominância de calcário calcítico, conforme ilustrado no gráfico de proporções:
+
+![Distribuição de Tipologias na Jazida](C:/Knime/IC Apl Decisões Financeiras 2026-1/Aula 5 - Trabalho/grafico_pie.png){width=60%}
+
+# Interpretação dos Clusters
+Com base nos centros dos clusters, as tipologias foram definidas como:
+
+1.  **Domínio Calcítico (82%)**: teor de $CaO > 48\%$. Destinado à indústria de calcinação, carbonato de cálcio, cimenteira, siderúrgica, entre outras.
+
+2.  **Domínio Dolomítico (8%)**: teor de $MgO > 15\%$. Destinado ao mercado de corretivo de solo agrícola.
+
+3.  **Domínio Silicoso (10%)**: elevado teor de $SiO_2$ e baixo Cálcio. Direcionado para o segmento de agregados para construção civil.
+
+# Conclusões
+A implementação do modelo automatizado no KNIME demonstrou-se eficaz, por entregar uma classificação consistente com a realidade mineralógica da jazida. Embora o modelo não gere resultados práticos, de forma imediata, ele apoia as tomadas de decisão ao:
+
+* **Otimizar o planejamento**: fornece uma visão clara da proporção real de cada tipo de calcário, facilitando o sequenciamento de lavra.
+
+* **Aumentar a previsibilidade**: mitiga riscos de contaminação de lotes de alta pureza por meio da trava lógica do *Rule Engine*.
+
+* **Potencializar a eficiência**: cria oportunidades para a redução futura de custos operacionais e tempos de ciclo pela otimização de frentes de trabalho.
+'
